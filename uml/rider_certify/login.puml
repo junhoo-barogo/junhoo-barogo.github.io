@@ -1,0 +1,36 @@
+
+client -> O2O++ : WK_HP 로 로그인
+return : 로그인, 출근처리
+
+client -> ZOO_AUTH++ : **[인증상태확인 API]** 호출 (WK_CODE)
+ZOO_AUTH -> ZOO_DB++ : **"account_detail"** 테이블 조회\n(WK_CODE 로 account_user_id 를 찾는다.)
+return
+
+alt 해당 WK_CODE 에 account_user_id 가 존재하면
+    ZOO_AUTH -> ZOO_DB++ : **"account_certification"** 테이블 조회
+    return : 인증상태 정보
+else 해당 WK_CODE 에 account_user_id 가 존재하지 않으면
+    ZOO_AUTH -> ZOO_DB++ : **"zoo_driver_license"** 테이블 조회\n(WK_HP 기준으로 **기존면허 확인여부** 조회)
+    return 기존면허확인 여부
+end
+
+
+note right of client
+    **e.g.,인증상태 정보**
+    - 약관동의 여부 = True or False
+    - 본인확인 여부 = True or False
+    - 면허확인 여부 = True or False
+    - 기존면허확인 여부 = True or False
+    - 실명확인 여부 = True or False
+    - 외국인 여부 = True or False
+end note
+
+return 인증상태 정보 리턴
+
+client -> client : **인증상태 정보** 는 client 에 저장해둔다
+
+alt 기존면허 확인여부 == True
+    client -> client : 당장 or 나중에 팝업 노출
+else 기존면허 확인여부 == False
+    client -> client : 당장 or 나중에 팝업 스킵
+end

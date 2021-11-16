@@ -1,0 +1,15 @@
+
+client -> client++ : 실명인증 form UI
+[-> client : form submit
+client -> ZOO_AUTH++ : **[실명확인 API]** 호출
+client -> client++ : 로딩 UI
+note right of ZOO_AUTH
+    이름
+    주민번호
+    면허번호
+    ...
+end note
+ZOO_AUTH -> 3RD_PARTY++ : 면허확인 API 호출\n(기웅정보통신)
+return
+ZOO_AUTH -> client : **[실명확인 API]** 응답
+deactivate
