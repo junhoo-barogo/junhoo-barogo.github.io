@@ -58,13 +58,13 @@ alt 기존면허인증여부 == True
 end
 
 note right of client
-    **e.g.,인증상태 정보** 
-    (본인인증은 문제없이 되었지만 기존면인증여부는 False 로 판정되었다고 가정해본다)
-    - 약관동의 여부 = True
-    - 본인확인 여부 = True
-    - 면허확인 여부 = null
-    - 실명확인 여부 = null
-    - 외국인 여부 = null
+    **e.g.,인증상태 정보**
+    - 약관동의 여부 = True or False
+    - 본인확인 여부 = True or False
+    - 면허확인 여부 = True or False
+    - 기존면허확인 여부 = True or False
+    - 실명확인 여부 = True or False
+    - 외국인 여부 = True or False
 end note
 
 alt 인증완료여부 == 실패

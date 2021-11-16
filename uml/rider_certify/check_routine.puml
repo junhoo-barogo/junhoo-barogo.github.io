@@ -4,9 +4,7 @@ alt 필수약관동의 여부 == False
 else 본인확인 여부 == False
     client -> client : 본인확인페이지를 연다
 else 면허확인 여부 == False
-    client -> client : 본인확인페이지를 연다
+    client -> client : 면허확인페이지를 연다
 else 실명확인 여부 == False
-    client -> client : 본인확인페이지를 연다
-else 외국인 여부 == False
-    client -> client : 본인확인페이지를 연다
+    client -> client : 실명확인페이지를 연다
 end 
