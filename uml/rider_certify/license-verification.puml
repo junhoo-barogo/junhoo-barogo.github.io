@@ -1,0 +1,75 @@
+
+client -> client++ : OCR UI
+[-> client : OCR 촬영
+client -> Google++ : OCR image 전송
+return OCR 응답
+note left of Google
+    이름, 주민번호, 
+    면허번호, 기간
+end note
+deactivate
+client -> client++ : 데이터 수정 form UI
+[-> client : form submit
+
+client -> ZOO_AUTH++ : **[면허확인 API]** 호출
+note left of ZOO_AUTH
+    이름
+    주민번호
+    면허번호
+    ...
+end note
+client -> client++ : 로딩 UI
+
+alt 본인확인 완료 API에서 확인한 "기존면허" == 없음 이면
+    ZOO_AUTH -> 3RD_PARTY++ : 면허확인 API 호출\n(기웅정보통신)
+    return
+end
+
+alt 면허확인 진위여부 == True
+    ZOO_AUTH -> ZOO_DB++ : **"zoo_driver_license"** 테이블에 UPSERT
+    return
+
+    ZOO_AUTH -> ZOO_DB++ : **"account_certification"** 테이블 UPSERT\n(account_user_id 의 **면허인증** 여부를 True로 UPSERT)
+    return
+end
+
+
+ZOO_AUTH -> client : **"면허확인API"** 리턴
+deactivate ZOO_AUTH
+
+
+alt 실명확인여부 == False 
+    client -> ZOO_AUTH++ : **"실명확인 API"** 호출
+    note left of ZOO_AUTH
+        이름
+        주민번호
+        ...
+    end note
+    ZOO_AUTH -> 3RD_PARTY++ : 실명확인 API 호출\n(NICE API)
+    return
+
+    alt 실명확인 진위여부 == True
+        ZOO_AUTH -> ZOO_DB++ : **"zoo_name_verification"** 테이블 UPSERT
+        return
+
+        ZOO_AUTH -> ZOO_DB++ : **"account_certification"** 테이블 UPSERT\n(account_user_id 의 **실명인증** 여부를 True로 UPSERT)
+        return
+    end
+
+    ZOO_AUTH -> client : **"실명확인API"** 응답
+    deactivate
+    deactivate client
+end
+
+alt 모든 인증 성공
+    client -> client++ : 성공 UI 노출
+    deactivate
+else 1개 인증 실패
+    client -> client++ : 일부 인증 실패 UI 노출
+    deactivate
+else 모든 인증 실패
+    client -> client++ : 인증 실패 UI 노출
+    deactivate
+end
+
+

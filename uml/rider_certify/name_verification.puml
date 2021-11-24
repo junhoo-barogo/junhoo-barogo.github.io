@@ -6,10 +6,18 @@ client -> client++ : 로딩 UI
 note right of ZOO_AUTH
     이름
     주민번호
-    면허번호
     ...
 end note
-ZOO_AUTH -> 3RD_PARTY++ : 면허확인 API 호출\n(기웅정보통신)
+ZOO_AUTH -> 3RD_PARTY++ : 실명확인 API 호출\n(NICE API)
 return
+
+alt 실명확인 진위여부 == True
+    ZOO_AUTH -> ZOO_DB++ : **"zoo_name_verification"** 테이블 UPSERT
+    return
+
+    ZOO_AUTH -> ZOO_DB++ : **"account_certification"** 테이블 UPSERT\n(account_user_id 의 **실명인증** 여부를 True로 UPSERT)
+    return
+end
+
 ZOO_AUTH -> client : **[실명확인 API]** 응답
 deactivate

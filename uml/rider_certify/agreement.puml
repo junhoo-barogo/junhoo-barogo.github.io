@@ -1,23 +1,39 @@
 
-client -> ZOO_AUTH++ : **"약관조회 API"** 호출
+client -> ZOO_AUTH++ : **"약관 목록 조회 API"** 호출
 ZOO_AUTH -> ZOO_DB++ : **"zoo_term"** 테이블 조회
-return : 약관
-return : 약관
-client -> client++ : 약관UI
-client -> client : 약관동의 여부 저장
-deactivate 
+return
+return 약관 목록
+
+client -> client++ : 약관 목록 UI
+
+[-> client : 각 약관 상세 조회
+client -> client++ : 약관 상세 UI
+client -> ZOO_AUTH++ : **"약관 상세 조회 API"** 호출
+ZOO_AUTH -> ZOO_DB++ : **"zoo_term"** 테이블 조회
+return
+return 약관 상세
+deactivate client
+
+[-> client : 약관 동의
+client -> client : 각 약관동의 여부 저장
+deactivate client
 
 note right of client
     아직 account_user_id 가 생성되기 전이므로 
     DB에 업데이트하지는 않고 클라이언트에만 저장한다!
 end note
 
+alt 모든 약관항목이 동의되면
+    client -> client : 약관동의 여부 := True
+end
+
 note right of client
     **e.g.,인증상태 정보**
     - 약관동의 여부 = True or False
     - 본인확인 여부 = True or False
-    - 면허확인 여부 = True or False
     - 기존면허확인 여부 = True or False
+    - 면허확인 여부 = True or False
     - 실명확인 여부 = True or False
     - 외국인 여부 = True or False
+    - 유예기간 여부 = True or False
 end note

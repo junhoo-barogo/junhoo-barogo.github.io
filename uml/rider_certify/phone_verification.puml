@@ -1,0 +1,101 @@
+
+client -> client++ : 웹뷰 열기
+client -> ZOO_AUTH++ : **"본인확인 API"** 호출
+return : NICE 본인확인 UI
+client -> client++ : NICE 본인확인 UI 열기
+client -> NICE++ : 본인 확인 정보 사용자 입력값 전송
+note right of client
+    - 이름
+    - 생년월일
+    - 성별
+    - 휴대폰번호 
+    - 문자인증번호
+end note
+
+client -> client++ : 로딩 UI
+NICE -> client : **"본인확인 완료 URI"** 호출
+note right of client 
+    - 인증성공여부
+    - 이름, 생년월일, 성별, 휴대폰번호
+    - 내/외국인 여부
+    - 통신사
+    - CI, DI
+end note
+deactivate NICE
+
+alt 인증성공여부 == False
+    client -> client : 인증 실패 UI (NICE 에서 준 실패사유 노출)
+end
+
+
+client -> ZOO_AUTH++ : **"본인확인 완료 API"** 호출
+ZOO_AUTH -> ZOO_DB++ : **"account_user"** 테이블 UPSERT\n(CI와 1:1 인 account_user_id 를 할당한다.)
+return
+ZOO_AUTH -> ZOO_DB++ : **"account_user_detail"** 테이블 UPSERT\n(account_user_id 에 WK_CODE 를 맵핑)
+return
+ZOO_AUTH -> ZOO_DB++ : **"zoo_phone_verification"** 테이블 UPSERT\n(account_user_id 의 휴대폰 본인확인 정보)
+return
+ZOO_AUTH -> ZOO_DB++ : **"account_certification"** 테이블 UPSERT\n(account_user_id 의 **본인확인** 및 **약관확인** 여부를 True 로 UPSERT)
+return
+
+
+alt 유예기간 여부 == True
+    ZOO_AUTH -> ZOO_DB++ : **"zoo_driver_license"(pass 포함)**(기존 면허) 테이블 조회
+    
+    note right of ZOO_AUTH
+        본인확인에서 리턴받은 휴대폰번호 기준으로 phone column 에서 검색하여 레코드를 가져온다.
+    end note
+    
+    return 찾은 기존 면허의 레코드
+
+    alt 레코드가 있다 AND 찾은 레코드의 실명 == 본인확인 실명
+        ZOO_AUTH -> ZOO_AUTH : **면허확인여부** := True
+    else 이외의 경우
+        ZOO_AUTH -> ZOO_AUTH : **면허확인여부** := False
+    end
+
+    alt 면허확인여부 == True 이면
+        ZOO_AUTH -> ZOO_DB++ : **"zoo_driver_license"(pass 포함)** 테이블 업데이트\n(해당되는 record 에 "account_user_id" column 삽입)
+        return
+        ZOO_AUTH -> ZOO_DB++ : **"account_certification"** 테이블 UPSERT\n(account_user_id 의 **면허확인** 여부를 True 로 UPSERT)
+        return
+    end
+end
+
+ZOO_AUTH -> client : **"본인확인 완료 API"** 리턴
+deactivate ZOO_AUTH
+deactivate client
+
+note right of client 
+    - **면허확인여부**
+    - (실패시에만) 실패사유
+    - (인증정보 불일치시에만) 인증정보 불일치 사유
+        - 사유1. 실명 불일치
+        - 사유2. WK_HP 기준으로는 면허있었으나, 본인확인 phone 기준으로 면허없음
+end note
+
+alt 기존면허확인 여부 == False AND 사유 == 실명불일치
+    client -> client : 인증정보 불일치 UI 노출 (실명불일치 안내 컨텐츠 노출)
+else 기존면허확인 여부 == False AND WK_HP기준으로는 면허가 있었으나 본인확인 phone기준으로는 면허없을때
+    client -> client : 인증정보 불일치 UI 노출 (휴대폰번호 불일치 안내 컨텐츠 노출)
+end
+
+alt **"본인확인 완료 API"** 에서 리턴받은 면허확인여부 == True
+    client -> client : 면허확인 여부 := True
+end
+
+alt 인증완료여부 == 성공 AND 외국인여부 == 외국인
+    client -> client : 외국인 경고 모달 UI 노출
+end
+deactivate
+
+note right of client
+    **e.g.,인증상태 정보**
+    - 약관동의 여부 = True or False
+    - 본인확인 여부 = True or False
+    - 기존면허확인 여부 = True or False
+    - 면허확인 여부 = True or False
+    - 실명확인 여부 = True or False
+    - 외국인 여부 = True or False
+    - 유예기간 여부 = True or False
+end note
