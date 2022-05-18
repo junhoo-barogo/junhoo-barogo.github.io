@@ -1,0 +1,43 @@
+participant 고릴라
+participant 상점앱
+participant 상점CS
+participant ZOO_OpenApi
+participant O2oApi
+database Oracle
+
+title 일회용컵 비과세 > 오더 > Update 요소
+
+group 상점앱에서 수정시
+    상점앱 -> O2oApi ++ : 주문수정 API 호출
+    note right of 상점앱
+        수정 호출시 > __PAY_LATER__ 에 값 추가필요
+        사용자가 입력한 값을 사용한다
+    end note
+    O2oApi -> Oracle ++ : 주문수정 프로시저 호출
+    note over Oracle
+        PKG_AST_01_HANDLE.SP_MOD_ORDER > __PAY_LATER__ 추가필요
+    end note
+    return
+    return
+end
+
+group 상점CS에서 수정시
+    note over 상점CS
+        [[https://barogo.slack.com/archives/C021G80QZB9/p1652683702820709?thread_ts=1652671814.168859&cid=C021G80QZB9 상점CS 에서 비과세금액 수정은 불가함]]
+        -> 문제가 발생하면 고릴라 사장님 사용을 유도한다
+    end note
+end
+
+group 고릴라로부터 수정시
+    고릴라 -> ZOO_OpenApi ++ : 결제 및 상품정보 변경 API 호출
+    note right of 고릴라
+        호출시 > taxFreePayAmount 에 값 추가필요
+    end note
+    ZOO_OpenApi -> Oracle ++ : INSERT
+    note right of ZOO_OpenApi
+        taxFreePayAmount 값을 받아
+        __PAY_LATER__ 에 넣는다
+    end note
+    return
+    return
+end

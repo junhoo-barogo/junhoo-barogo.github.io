@@ -1,0 +1,6 @@
+participant ZOO as ZOO
+participant GORELA as GORELA
+participant 타배대사 as 타배대사
+
+GORELA -> ZOO : 오더 생성
+

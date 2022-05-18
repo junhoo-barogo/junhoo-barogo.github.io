@@ -1,0 +1,67 @@
+participant 라이더앱
+participant O2oApi
+participant VAN
+database Oracle
+participant ZOO_event
+participant ZOO_integration
+participant 고릴라
+
+title 일회용컵 비과세 > 결제내역 > Create 요소
+
+group 이번범위
+    note right of 라이더앱 
+        라이더앱과 상점앱의 동작이 일치하여 라이더앱 기준으로 문서를 작성하였습니다
+    end note
+    -> 라이더앱 : 결제
+    alt 결제한 이력이 없다면 (카드번호, 현금영수증번호가 없을때)
+        note right of 라이더앱
+            [ 결제할 금액 > 비과세금액 ] 일때 비과세 금액을 포함하여 결제한다
+        end note
+    else 결제한 이력이 있다면 (아래 판단은 사실 서버에서 하는것이 나을수 있음)
+        라이더앱 -> O2oApi ++ : 결제내역 조회 (결제취소된 이력은 제외하고 확인)
+        O2oApi -> Oracle ++ : 결제내역 조회
+        return
+        return
+        라이더앱 -> 라이더앱 ++ : 결제내역 정보를 기반으로 비과세 결제를 시킬것인지 판단한다
+        note right of 라이더앱
+            **PG 테이블에 비과세금액 필드 추가 한다면**
+            로직1. [ 결제할 금액 > 비과세금액 ]
+            로직2. [ 비과세금액이 결제내역에 없었는가? ]
+            위 두 로직이 모두 TRUE 이면 비과세금액을 포함하여 결제한다
+            **PG 테이블에 비과세금액 필드 추가 하지 않는다면**
+            로직1. [ 결제할 금액 > 비과세금액 ]
+            로직2. [ 결제금액 > 비과세금액인 결제내역이 없었는가? ]
+            위 두 로직이 모두 TRUE 이면 비과세금액을 포함하여 결제한다
+        end note
+        return
+    end
+    라이더앱 -> O2oApi ++ : 결제요청
+    O2oApi -> VAN ++ : 결제요청
+    note over VAN
+        __PAY_LATER__ 값을 VAN 사 규격에 맞춰 보낸다
+    end note
+    return
+    O2oApi -> Oracle ++ : 결제내역 INSERT
+    note over Oracle
+        1안) __PAY_LATER__ 필드를 얼터하여 넣는다
+        2안) ORD_NO 로 JOIN 가능하므로 넣지않는다
+        (리마인드 : 현금인경우 VAN 에 요청하지 않더라도 현금영수증 기록을 남긴다)
+    end note
+    return 
+    return
+end
+
+group 다음범위
+    note right of ZOO_event
+        아래 내용에 비과세 금액 필드를 추가한다
+        (그런데 배민에서 이미 확인가능할텐데, 정말 필요한지 다시 검토필요)
+    end note
+    ZOO_event -> Oracle ++ : 결제내역 조회
+    return
+    ZOO_event -> ZOO_integration ++ : 이벤트 전송\n(via.kafka)
+    ZOO_integration -> 고릴라 ++ : 이벤트전송
+    return
+    deactivate
+    고릴라 -> 고릴라 : 사장님, 주문제휴사에 전송...
+end
+

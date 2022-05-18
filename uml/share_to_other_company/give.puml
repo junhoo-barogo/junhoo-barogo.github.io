@@ -1,0 +1,64 @@
+@startuml
+participant ZOO as ZOO
+participant GORELA as GORELA
+participant 타배대사 as 타배대사
+
+GORELA -> ZOO ++ : 오더 생성 (typeCode : 'DELIVERY')
+GORELA -> GORELA : **n초** 경과시에도 배차가 안되었다면\n타배대사에 공유 판단
+GORELA -> ZOO ++ : (open api) 배달 회수 API (내가 줬던 오더 잠깐 빌려갈게요)
+ZOO -> GORELA : **"특정조건"** 이 맞는 오더라면\n배달대행료는 발주측 수수료 제외한 금액을 전달
+note right of ZOO
+    **"특정조건"**
+    ["타배대사 가상 수행허브"에 공유한 상점의 오더인가?] **(테스트 대상 상점 여부)**
+    이 외 조건들이 존재하지만, "타배대사 가상 수행허브"에 상점 공유설정시 반영예정
+end note
+
+ZOO -> ZOO : ZOO, O2O 에서는 해당 오더들을\n**"배차"**상태 로 표기한다
+deactivate
+
+note right of ZOO
+      **라이더,발주허브의 수정권한 제한 필요**
+      (O2O) 즉시배차,강제배차,픽업 등 상태변경 프로시저
+      가상 수행허브가 배차중인 오더의 경우(하드코딩) 권한 제한한다, 
+      
+      **발주허브에 안내 필요**
+      "타배대사에 공유 중인 배달은 배차상태로 표기됩니다"
+end note
+deactivate ZOO
+
+GORELA -> 타배대사 : ZOO 에서 빌려간 오더를 공유한다
+
+alt **n초** 내에 타배대사에서 배차가 안된경우
+    GORELA -> GORELA ++ : **n초** 경과시에도 배차가 안되었다면\n배달을 다시 돌려준다
+    GORELA -> 타배대사 : "이제 공유 그만할게요"
+    GORELA -> ZOO : (open api) "타배대사도 배차 안되네요... 이제 알아서 하세요" 이벤트
+    deactivate
+    ZOO -> ZOO : 일반오더처럼 처리
+else **n초** 내에 타배대사에서 배차가 된경우
+    타배대사 -> GORELA ++ : 픽업,완료 이벤트
+    GORELA -> ZOO : (open api) 픽업,완료 이벤트
+    note right of ZOO
+      - 타배대사에 공유된 시점에서 이미 배차상태이므로 배차는 안받음
+      - 수행측에는 오더수정권한이나 취소권한은 안주는방향임.
+      - 배차 취소 이벤트는 어떻게 처리할지는 추가확인 필요 (정책)
+    end note
+    deactivate GORELA
+end
+
+alt 바로고 발주허브에서 오더수정이 발생한경우
+    ZOO -> GORELA ++ : 취소, 각종 배달수정 이벤트
+    GORELA -> 타배대사 : (open api) 취소, 각종 배달수정 이벤트
+    deactivate
+end
+
+alt openApi 로부터 완료 이벤트를 수신할 경우
+    ZOO -> ZOO ++ : 오라클 정산프로시저 02 실행
+    note right of ZOO
+        타배대사 가상 수행허브인지 확인하여
+        추가적인 로직이 필요할지 검토필요
+    end note
+deactivate
+end
+
+
+

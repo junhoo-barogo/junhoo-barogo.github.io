@@ -1,0 +1,18 @@
+participant 상점앱
+participant 상점CS
+participant 관리자
+participant O2oApi
+database Oracle
+
+title 일회용컵 비과세 > 결제내역 > Update 요소
+
+group 상점앱, 라이더앱에서 결제취소시
+    상점앱 -> O2oApi ++ : 결제취소 요청 API 호출
+    O2oApi -> Oracle ++ : 결제취소 프로시저 호출
+    note right of O2oApi
+        PKG_AST_01_HANDLE.??? > 결제취소 요청시 __PAY_LATER__ 추가필요
+        (결제요청 호출 할때 값이 필요)
+    end note
+    return
+    return
+end

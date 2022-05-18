@@ -16,7 +16,7 @@ create or replace PROCEDURE        SP_CSC_0201_GET_ORDER_LIST
     , in_HD_CODE        IN  VARCHAR2                -- 사용자총판코드
     , in_BR_CODE        IN  VARCHAR2                -- 사용자지사코드
     , in_CALL_BR_CODE   IN  VARCHAR2                -- 콜센터코드
-    , in_ORD_TYPE_CD    IN  VARCHAR2                -- 접수구분코드
+    , in_ORD_TYPE_CD    IN  VARCHAR2                -- 접수구분코드 
     
     , in_ORD_STATUS_CD  IN  VARCHAR2                -- 접수상태코드
     , in_LAST_UPDATE    IN  VARCHAR2                -- 마지막 조회시간 YYYYMMDDHH24MISS(예: 20130529134532)

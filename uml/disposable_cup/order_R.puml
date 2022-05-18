@@ -1,0 +1,45 @@
+participant 상점앱
+participant 상점CS
+participant 라이더앱
+participant 관리자
+participant O2oApi
+database Oracle
+
+title 일회용컵 비과세 > 오더 > Read 요소
+
+group 상점앱에서 조회시
+    상점앱 -> O2oApi ++ : 오더 상세조회 API 호출
+    O2oApi -> Oracle ++ : 오더 상세조회 프로시저 호출
+    note right of O2oApi
+        PKG_AST_01_HANDLE.??? > __PAY_LATER__ 추가필요
+        (화면에서 보인다, 물론 결제요청 호출 할때도 쓴다)
+    end note
+    return
+    return
+end
+
+group 상점CS 에서 조회시
+    note over 상점CS
+        [[https://barogo.slack.com/archives/C021G80QZB9/p1652683702820709?thread_ts=1652671814.168859&cid=C021G80QZB9 상점CS에서는 메모로 보여주기로 의사결정]]
+        (**걱정** : 상점앱에서 변경해도 메모가 안바뀌니 착오가 생길것 같은데...)
+    end note
+end
+
+group 라이더앱에서 조회시
+    라이더앱 -> O2oApi ++ : 오더 상세조회 API 호출
+    O2oApi -> Oracle ++ : 오더 상세조회 프로시저 호출
+    note right of O2oApi
+        PKG_AWK_01_HANDLE.SP_GET_ORDER_CATCH > __PAY_LATER__ 추가필요
+        PKG_AWK_01_HANDLE.SP_GET_BAECHA_DETAIL > __PAY_LATER__ 추가필요
+        (화면은 안바꾼다, 결제요청 호출 할때 비과세값이 필요하니 추가하는 맥락)
+    end note
+    return
+    return
+end
+
+group 관리자 앱, 관리자CS에서 확인시
+    note over 관리자
+        [[https://barogo.slack.com/archives/C021G80QZB9/p1652683702820709?thread_ts=1652671814.168859&cid=C021G80QZB9 관리자에서는 빼기로 의사결정]]
+        (**걱정** : 상점이 문의하면 확인해주는 용도로 필요할것 같은데...)
+    end note
+end

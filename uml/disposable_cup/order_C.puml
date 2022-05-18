@@ -1,0 +1,54 @@
+participant 고릴라
+participant 상점앱
+participant 상점CS
+participant ZOO_OpenApi
+participant O2oApi
+database Oracle
+
+title 일회용컵 비과세 > 오더 > Create 요소
+
+group 상점앱으로 접수시
+    상점앱 -> O2oApi ++ : 주문접수 API 호출
+    note right of 상점앱
+        - 사용자가 입력한 값을 사용한다
+        - 접수 호출시 > __PAY_LATER__ 에 값 추가필요
+        - **부가세 산정시 ORD_AMT - PAY_LATER 금액을 기준으로 해야함**
+    end note
+    O2oApi -> Oracle ++ : 주문접수 프로시저 호출
+    note right of Oracle
+        PKG_AST_01_HANDLE.SP_PUT_ORDER > __PAY_LATER__ 추가필요
+    end note
+    return
+    return
+end
+
+group 상점CS에서 접수시
+    상점CS -> O2oApi ++ : 주문접수 API 호출
+    note right of 상점CS
+        - 유저인풋으로 접수하는 기능에는 적용하지 않는다
+        - 배민 DLL 로 접수되는 오더에 한해서 적용
+        - 배민 DLL 에서 메모에 포함하여 보내주는 값을 파싱해서 쓴다
+        - 접수 호출시 > __PAY_LATER__ 에 값 추가필요
+        - **부가세 산정시 ORD_AMT - PAY_LATER 금액을 기준으로 해야함**
+    end note
+    O2oApi -> Oracle ++ : 주문접수 프로시저 호출
+    note right of Oracle
+        SP_CSC_0203_V_20140723 > __PAY_LATER__ 추가필요
+    end note
+    return
+    return
+end
+
+group 고릴라로부터 접수시
+    고릴라 -> ZOO_OpenApi ++ : 주문접수 API 호출
+    note right of 고릴라
+        접수 호출시 > taxFreePayAmount 에 값 추가필요
+    end note
+    ZOO_OpenApi -> Oracle ++ : 오더 INSERT
+    note right of ZOO_OpenApi
+        taxFreePayAmount 값을 받아
+        __PAY_LATER__ 에 넣는다
+    end note
+    return
+    return
+end
