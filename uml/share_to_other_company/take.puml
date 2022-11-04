@@ -6,11 +6,10 @@ participant 타배대사 as 타배대사
 activate GORELA 
 GORELA -> 타배대사 ++ : 오더 빌려주세요 (??? 이 부분은 정확히 잘 모르겠음)
 return
-GORELA -> ZOO : (open api) 배달 접수
+GORELA -> ZOO : (open api) 배달요청
 note right of ZOO
-    ZOO 에는 "타배대사 발주허브"가 발주한 형식으로 들어온다
-    배달대행료는 타배대사에서 정해서 내려준다
-    이때 B2B배달처럼 상점 맵핑 되어 들어온다
+    ZOO 에는 "타배대사 발주허브의 상점" 에서 발주한 형식으로 들어온다 (B2B 처럼)
+    다만 배달대행료는 타배대사에서 정해서 내려준다
 end note
 deactivate GORELA
 
@@ -23,8 +22,8 @@ else **n초** 내에 ZOO 에서 배차가 된경우
     ZOO -> GORELA ++  : (event, Integration) 배차,픽업,완료
     GORELA -> 타배대사 : 배차,픽업,완료
     note right of ZOO
-      수행측에는 오더수정권한이나 취소권한은 안주는방향임.
-      하지만 배차 취소 이벤트는 어떻게 처리할지는 추가확인 필요 (정책)
+      - 수행배대사인 바로고에는 오더수정권한이나 취소권한이 없음
+      - ZOO 에서 배차가 되었는데, **n초** 체크 시점 이후 배차취소가 되면, 해당 오더는 영영 ZOO 로 넘어오게됨
     end note
     deactivate GORELA
 end

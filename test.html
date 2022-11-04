@@ -1,7 +1,16 @@
-<iframe
-  style="border: 1px solid rgba(0, 0, 0, 0.1)"
-  width="800"
-  height="450"
-  src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Ffile%2FnQeyj0Nd1Z02H2ZeOZf1Xa%2F%255B%25EC%259E%2591%25EC%2597%2585%25EC%259A%25A9%255D%255BDesktop-Hub%255D-HUB-Controlroom%3Fnode-id%3D209%253A587"
-  allowfullscreen
-></iframe>
+<html>
+  <head>
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
+    />
+    <py-env> 
+      - plotly-express
+      - pandas
+    </py-env>
+  </head>
+  <body>
+    <py-script src="./test.py"> </py-script>
+  </body>
+</html>

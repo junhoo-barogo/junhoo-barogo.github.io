@@ -3,9 +3,9 @@ participant ZOO as ZOO
 participant GORELA as GORELA
 participant 타배대사 as 타배대사
 
-GORELA -> ZOO ++ : 오더 생성 (typeCode : 'DELIVERY')
+GORELA -> ZOO ++ : (open api) 배달요청 (typeCode : 'DELIVERY')
 GORELA -> GORELA : **n초** 경과시에도 배차가 안되었다면\n타배대사에 공유 판단
-GORELA -> ZOO ++ : (open api) 배달 회수 API (내가 줬던 오더 잠깐 빌려갈게요)
+GORELA -> ZOO ++ : (open api) 배달 회수 (내가 아까 준 오더 잠깐 빌려갈게요)
 ZOO -> GORELA : **"특정조건"** 이 맞는 오더라면\n배달대행료는 발주측 수수료 제외한 금액을 전달
 note right of ZOO
     **"특정조건"**
@@ -13,13 +13,13 @@ note right of ZOO
     이 외 조건들이 존재하지만, "타배대사 가상 수행허브"에 상점 공유설정시 반영예정
 end note
 
-ZOO -> ZOO : ZOO, O2O 에서는 해당 오더들을\n**"배차"**상태 로 표기한다
+ZOO -> ZOO : ZOO, O2O 에서는 해당 오더들을\n**"배차"**상태 로 표기한다\n(타배대사 가상 수행허브, 라이더에게 배차)
 deactivate
 
 note right of ZOO
-      **라이더,발주허브의 수정권한 제한 필요**
+      **발주허브의 수정권한 제한 필요**
       (O2O) 즉시배차,강제배차,픽업 등 상태변경 프로시저
-      가상 수행허브가 배차중인 오더의 경우(하드코딩) 권한 제한한다, 
+      가상 수행허브가 배차중인 오더의 경우 권한 제한한다, 
       
       **발주허브에 안내 필요**
       "타배대사에 공유 중인 배달은 배차상태로 표기됩니다"
@@ -39,8 +39,8 @@ else **n초** 내에 타배대사에서 배차가 된경우
     GORELA -> ZOO : (open api) 픽업,완료 이벤트
     note right of ZOO
       - 타배대사에 공유된 시점에서 이미 배차상태이므로 배차는 안받음
-      - 수행측에는 오더수정권한이나 취소권한은 안주는방향임.
-      - 배차 취소 이벤트는 어떻게 처리할지는 추가확인 필요 (정책)
+      - 수행배대사인 타배대사에는 오더수정 권한, 오더취소 권한은 없다
+      - 타배대사에서 배차가 되었는데, **n초** 체크 시점 이후 배차취소가 되면, 해당 오더는 영영 타배대사로 넘어가게됨
     end note
     deactivate GORELA
 end

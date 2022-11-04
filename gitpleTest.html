@@ -1,0 +1,78 @@
+<head>
+  <script>
+    window.GitpleConfig = {
+      appCode: "OJatD4s6mb0yuJgMCVLvLrkAIN11l3",
+    };
+
+    !(function () {
+      function e() {
+        function e() {
+          var e = t.contentDocument,
+            a = e.createElement("script");
+          (a.type = "text/javascript"),
+            (a.async = !0),
+            (a.src =
+              window[n] && window[n].url
+                ? window[n].url + "/inapp-     web/gitple-loader.js"
+                : "https://app.gitple.io/inapp-web/gitple-loader.js"),
+            (a.charset = "UTF-8"),
+            e.head && e.head.appendChild(a);
+        }
+        var t = document.getElementById(a);
+        t ||
+          (((t = document.createElement("iframe")).id = a),
+          (t.style.display = "none"),
+          (t.style.width = "0"),
+          (t.style.height = "0"),
+          t.addEventListener
+            ? t.addEventListener("load", e, !1)
+            : t.attachEvent
+            ? t.attachEvent("onload", e)
+            : (t.onload = e),
+          document.body.appendChild(t));
+      }
+      var t = window,
+        n = "GitpleConfig",
+        a = "gitple-loader-frame";
+      if (!window.Gitple) {
+        document;
+        var i = function () {
+          i.ex && i.ex(arguments);
+        };
+        (i.q = []),
+          (i.ex = function (e) {
+            i.processApi ? i.processApi.apply(void 0, e) : i.q && i.q.push(e);
+          }),
+          (window.Gitple = i),
+          t.attachEvent
+            ? t.attachEvent("onload", e)
+            : t.addEventListener("load", e, !1);
+      }
+    })();
+
+    Gitple("boot", {
+      id: "ord.hubIduser.userId", // [필수] 상담고객 식별 ID
+      name: "ord.hubName / user.userName",
+      email: "",
+      phone: "010-4609-7601",
+      meta: {
+        // [선택] 아래 세부 정보 참고
+        배달번호: "orderId",
+        당일번호: "todayNumber",
+        상품금액: "orderAmount",
+        배달대행료:
+          "“매입 : ” +  purchaseDeliveryCharge + “원 / 매출: “ + deliveryAdjustAmount + “원”",
+        상점명: "storeName",
+        상점전화: "orderPhone",
+        고객전화: "받는이 : + receiverPhone  + “ ” + 주문자 :  + customerPhone",
+        도착지:
+          "dropAddressDong + “ “ + dropAddressLi + “ “ + dropAddressJibun + “ “ + dropAddressBuildingName + “ “ + dropAddressDetail + “ (”  + dropAddressRoad + “ “ + dropAddressBuildingNumber + ”)”",
+      },
+    }); // 로그인 사용자라면 아래 추가 정보 부분을 확인
+  </script>
+</head>
+<body>
+  <button type="button" onclick="javascript:Gitple('open');">
+    채팅창 열기
+  </button>
+</body>
